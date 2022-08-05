@@ -17,6 +17,20 @@ t ReadMemory(UINT64 addr)
 	return buffer;
 }
 
+template<typename t>
+NTSTATUS WriteMemory(UINT64 addr, t buffer)
+{
+	SIZE_T copiedBytes = 0;
+
+	if (NT_SUCCESS(MmCopyVirtualMemory(PsGetCurrentProcess(), &buffer, targetApplication, (PVOID)addr, sizeof(t), KernelMode, &copiedBytes)))
+	{
+		return STATUS_SUCCESS;
+	}
+	else
+	{
+		return STATUS_ACCESS_DENIED;
+	}
+}
 
 template<typename t>
 NTSTATUS ReadVirtual(PEPROCESS process, uintptr_t addr, t* buffer)

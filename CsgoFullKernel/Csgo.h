@@ -143,6 +143,8 @@ void CsgoMain()
 
 			RECT boxEsp = { Entity_x + Entity_w, Entity_y + height, Entity_x, Entity_y };
 			FrameRect(hdc, &boxEsp, brush, 1);
+
+			WriteMemory<bool>(currEnt + m_bSpotted, true);
 		}
 
 
