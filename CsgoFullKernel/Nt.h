@@ -4,6 +4,8 @@
 #include <wingdi.h>
 #include <ntddmou.h>
 #include "VkCodes.h"
+#include <ntddbeep.h>
+#include <ntddk.h>
 
 extern "C" int _fltused = 0;
 
@@ -30,13 +32,13 @@ typedef struct _MAT3X4
 
 
 
-float targetWindowWidth = 1920;
-float targetWindowHeight = 1080;
+float targetWindowWidth = 3840;
+float targetWindowHeight = 2160;
 float targetWindowPosX = 0;
 float targetWindowPosY = 0;
 
 
-#define Print(fmt, ...) DbgPrint("[s11]: " fmt, ##__VA_ARGS__)
+#define Print(fmt, ...) DbgPrintEx(DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LAZARUS]: " fmt "\n", ##__VA_ARGS__)
 #define MAX_PATH 260
 
 
@@ -47,21 +49,49 @@ ULONG cidOffset = 0x478; //_ETHREAD->_CLIENT_ID Cid;
 
 typedef DWORD LFTYPE;
 
+#ifdef __cplusplus
 extern "C"
 {
+#endif
+	NTKERNELAPI
+		NTSTATUS
+		ObReferenceObjectByName(
+			IN PUNICODE_STRING ObjectName,
+			IN ULONG Attributes,
+			IN PACCESS_STATE PassedAccessState OPTIONAL,
+			IN ACCESS_MASK DesiredAccess OPTIONAL,
+			IN POBJECT_TYPE ObjectType,
+			IN KPROCESSOR_MODE AccessMode,
+			IN OUT PVOID ParseContext OPTIONAL,
+			OUT PVOID* Object
+		);
+	extern POBJECT_TYPE* IoDriverObjectType;
+
 	NTSTATUS NTAPI MmCopyVirtualMemory(PEPROCESS SourceProcess, PVOID SourceAddress, PEPROCESS TargetProcess, PVOID TargetAddress, SIZE_T BufferSize, KPROCESSOR_MODE PreviousMode, PSIZE_T ReturnSize);
 	NTKERNELAPI PVOID PsGetProcessSectionBaseAddress(PEPROCESS Process);
 	NTKERNELAPI PVOID NTAPI PsGetProcessWow64Process(IN PEPROCESS Process);
 	NTKERNELAPI PPEB NTAPI PsGetProcessPeb(IN PEPROCESS Process);
 	NTSTATUS NTAPI ZwQuerySystemInformation(ULONG SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 	NTKERNELAPI PVOID NTAPI RtlFindExportedRoutineByName(PVOID ImageBase, PCCH RoutineNam);
-	NTSYSAPI NTSTATUS NTAPI ObReferenceObjectByName(PUNICODE_STRING ObjectName,ULONG Attributes,PACCESS_STATE AccessState,ACCESS_MASK DesiredAccess,POBJECT_TYPE ObjectType, KPROCESSOR_MODE AccessMode, PVOID ParseContext, PVOID* Object);
+	NTSYSAPI NTSTATUS NTAPI ObReferenceObjectByName(PUNICODE_STRING ObjectName, ULONG Attributes, PACCESS_STATE AccessState, ACCESS_MASK DesiredAccess, POBJECT_TYPE ObjectType, KPROCESSOR_MODE AccessMode, PVOID ParseContext, PVOID* Object);
 
 	NTKERNELAPI PVOID __fastcall PsGetProcessImageFileName(PEPROCESS process);
 	NTKERNELAPI PVOID PsGetThreadWin32Thread(PKTHREAD thread);
 	NTKERNELAPI PVOID PsSetThreadWin32Thread(PKTHREAD thread, PVOID wantedValue, PVOID compareValue);
-}
 
+	NTSYSAPI
+		NTSTATUS
+		NTAPI
+		ZwProtectVirtualMemory(
+			__in HANDLE ProcessHandle,
+			__inout PVOID* BaseAddress,
+			__inout PSIZE_T RegionSize,
+			__in ULONG NewProtect,
+			__out PULONG OldProtect
+		);
+#ifdef __cplusplus
+}
+#endif
 
 typedef enum _SYSTEM_INFORMATION_CLASS
 {
@@ -227,7 +257,6 @@ inline HFONT NtGdiSelectFont(HDC hdc, HFONT hfont)
 	auto fn = reinterpret_cast<HFONT(*)(HDC hdc, HFONT hfont)>(NtGdiSelectFontPtr);
 	return fn(hdc, hfont);
 }
-
 
 typedef struct _PEB_LDR_DATA {
 	ULONG Length;

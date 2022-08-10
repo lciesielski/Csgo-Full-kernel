@@ -8,7 +8,6 @@ void Sleep(int ms)
 	KeDelayExecutionThread(KernelMode, TRUE, &time);
 }
 
-
 NTSTATUS GetProcessBaseAddress(int pid, ULONG64* baseAddr)
 {
 	PEPROCESS eproc = NULL;
@@ -27,7 +26,6 @@ NTSTATUS GetProcessBaseAddress(int pid, ULONG64* baseAddr)
 	return STATUS_SUCCESS;
 }
 
-
 NTSTATUS StartThread(PVOID start)
 {
 	HANDLE threadHandle = NULL;
@@ -39,13 +37,8 @@ NTSTATUS StartThread(PVOID start)
 		return status;
 	}
 
-	ZwClose(threadHandle);
 	return STATUS_SUCCESS;
 }
-
-
-
-
 
 inline ULONG RandomNumber()
 {
@@ -108,7 +101,6 @@ QueryTry:
 	*size = allocationSize;
 	return informationBuffer;
 }
-
 
 NTSTATUS GetProcByName(const char* name, PEPROCESS* process, int iteration)
 {
@@ -189,7 +181,6 @@ NTSTATUS GetProcByName(const char* name, PEPROCESS* process, int iteration)
 	return STATUS_NOT_FOUND;
 }
 
-
 UINT64 GetKernelModuleBase(const char* name)
 {
 	ULONG size = 0;
@@ -226,7 +217,6 @@ NTSTATUS InitWindowUtils()
 
 	return STATUS_SUCCESS;
 }
-
 
 bool IsProcessName(const char* name, PEPROCESS process)
 {

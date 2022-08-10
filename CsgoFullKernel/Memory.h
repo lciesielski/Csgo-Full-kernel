@@ -21,15 +21,7 @@ template<typename t>
 NTSTATUS WriteMemory(UINT64 addr, t buffer)
 {
 	SIZE_T copiedBytes = 0;
-
-	if (NT_SUCCESS(MmCopyVirtualMemory(PsGetCurrentProcess(), &buffer, targetApplication, (PVOID)addr, sizeof(t), KernelMode, &copiedBytes)))
-	{
-		return STATUS_SUCCESS;
-	}
-	else
-	{
-		return STATUS_ACCESS_DENIED;
-	}
+	return MmCopyVirtualMemory(PsGetCurrentProcess(), &buffer, targetApplication, (PVOID)addr, sizeof(t), KernelMode, &copiedBytes);
 }
 
 template<typename t>

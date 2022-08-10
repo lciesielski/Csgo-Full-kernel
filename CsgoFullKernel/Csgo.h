@@ -5,7 +5,6 @@
 #include "Offsets.h"
 #include "Keymap.h"
 
-
 void ExitThread()
 {
 	Print("exiting systhem thread");
@@ -58,7 +57,6 @@ void CsgoMain()
 
 	while (SaveWhileLoop())
 	{
-
 		if (!SpoofWin32Thread())
 			continue;
 
@@ -66,7 +64,7 @@ void CsgoMain()
 		if (!IsWindowFocused("csgo.exe"))
 		{
 			Print("cs not focused\n");
-			Sleep(100);
+			Sleep(1000);
 			UnspoofWin32Thread();
 			continue;
 		}
@@ -92,18 +90,11 @@ void CsgoMain()
 		DWORD localplayer = ReadMemory<DWORD>(clientBase + dwLocalPlayer);
 		DWORD localTeam = ReadMemory<DWORD>(localplayer + m_iTeamNum);//fixed
 
-
 		Vector3 punchAngle = ReadMemory<Vector3>(localplayer + m_aimPunchAngle);
-
 
 		punchAngle.x = punchAngle.x * 12; punchAngle.y = punchAngle.y * 12;
 		float x = targetWindowWidth / 2 - punchAngle.y;
 		float y = targetWindowHeight / 2 + punchAngle.x;
-
-		
-		RECT rect = { x - 2, y - 2, x + 2, y + 2 };
-		FrameRect(hdc, &rect, brush, 2);
-
 
 		MAT4X4 viewMatrix = ReadMemory<MAT4X4>(clientBase + dwViewMatrix);
 
@@ -143,14 +134,10 @@ void CsgoMain()
 
 			RECT boxEsp = { Entity_x + Entity_w, Entity_y + height, Entity_x, Entity_y };
 			FrameRect(hdc, &boxEsp, brush, 1);
-
-			WriteMemory<bool>(currEnt + m_bSpotted, true);
 		}
-
 
 		NtGdiDeleteObjectApp(brush);
 		NtUserReleaseDC(hdc);
-
 
 		UnspoofWin32Thread();
 		YieldProcessor();
